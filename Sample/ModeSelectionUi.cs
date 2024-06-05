@@ -9,27 +9,15 @@ public class ModeSelectionUi : MonoBehaviour
     public Button learningMode;
     private void Start()
     {
-        storyMode.onClick.AddListener(() => { GameManager._instance.stateQueue = GameManager._instance.storyQueue; GameManager._instance.mode = GameState.Story; GameManager._instance.ChangeGameMode(); });
-        craftingMode.onClick.AddListener(() => { GameManager._instance.stateQueue = GameManager._instance.craftingQueue; GameManager._instance.mode = GameState.Crafting; GameManager._instance.ChangeGameMode(); });
-        learningMode.onClick.AddListener(() => { GameManager._instance.stateQueue = GameManager._instance.learningQueue; GameManager._instance.mode = GameState.Learning; GameManager._instance.ChangeGameMode(); });
-        GameManager._instance.onStateChange += _ => OnStateChanged(_);
-        OnStateChanged(GameManager._instance.gameState);
+        storyMode.onClick.AddListener(() => { SampleManager._instance.stateQueue = SampleManager._instance.storyQueue; SampleManager._instance.mode = GameState.Story; SampleManager._instance.ChangeGameMode(); });
+        craftingMode.onClick.AddListener(() => { SampleManager._instance.stateQueue = SampleManager._instance.craftingQueue; SampleManager._instance.mode = GameState.Crafting; SampleManager._instance.ChangeGameMode(); });
+        learningMode.onClick.AddListener(() => { SampleManager._instance.stateQueue = SampleManager._instance.learningQueue; SampleManager._instance.mode = GameState.Learning; SampleManager._instance.ChangeGameMode(); });
+        SampleManager._instance.onStateChange += _ => OnStateChanged(_);
+        OnStateChanged(SampleManager._instance.gameState);
     }
 
     private void OnStateChanged(GameState mode)
     {
         gameObject.SetActive(mode == GameState.IntroTask);
     }
-    //public void Active()
-    //{
-    //    gameObject.SetActive(true);
-    //}
-    //public void Inactive()
-    //{
-    //    gameObject.SetActive(false);
-    //}
-
-    //public void Referesh()
-    //{
-    //}
 }

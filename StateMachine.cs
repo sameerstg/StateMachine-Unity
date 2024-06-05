@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 [System.Serializable]
 public class State
@@ -45,10 +44,7 @@ public class StateManager
 
     public void ChangeState(int index)
     {
-        //if (currentState != null)
-        //    Debug.LogError(currentState.GetType());
-
-        if (currentState != null) currentState.Exit();
+        currentState?.Exit();
         if (index >= states.Count) return;
         currentState = states[index];
         currentState.Enter();

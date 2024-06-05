@@ -23,9 +23,9 @@ public class Host : MonoBehaviour
     //}
     private void Start()
     {
-        GameManager._instance.onStateChange += _ => AssignStateAcc(_);
+        SampleManager._instance.onStateChange += _ => AssignStateAcc(_);
 
-        AssignStateAcc(GameManager._instance.gameState);
+        AssignStateAcc(SampleManager._instance.gameState);
 
     }
     //private void OnEnable()
@@ -128,31 +128,10 @@ public class Host_BaseState : State
     public void LookAtPlayer()
     {
         var temp = host.transform.eulerAngles;
-        host.hostRig.transform.LookAt(GameManager._instance.playerCaretaker.transform);
+        host.hostRig.transform.LookAt(SampleManager._instance.transform);
         host.hostRig.transform.eulerAngles = new Vector3(temp.x, host.hostRig.transform.eulerAngles.y, temp.z);
     }
-    //public void SubChangeOnPlayerAction()
-    //{
 
-    //    GameManager._instance.onStateChange += Change;
-
-    //}
-    //public void SubChangeOnPlayerAction(State state)
-    //{
-
-    //    GameManager._instance.onStateChange += () => Change(state);
-
-    //}
-    //public void Change()
-    //{
-    //    GameManager._instance.onStateChange -= Change;
-    //    host.stateManager.ChangeState();
-    //}
-    //public void Change(State state)
-    //{
-    //    GameManager._instance.onStateChange -= () => Change(state);
-    //    host.stateManager.ChangeState(state);
-    //}
 
 }
 
@@ -180,7 +159,7 @@ public class Host_Intro : Host_BaseState
         host.PlayAudio(host.intro1);
         LeanTween.delayedCall(host.intro1.length, () =>
         {
-            if (GameManager._instance.gameState == GameState.Intro)
+            if (SampleManager._instance.gameState == GameState.Intro)
             {
                 host.areYouReadyToBegin.SetActive(true); host.stateManager.ChangeState(10);
             }
@@ -219,7 +198,7 @@ public class Host_IntroToTasks : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.introEnvironment);
-        LeanTween.delayedCall(host.introEnvironment.length, () => { if (GameManager._instance.gameState == GameState.IntroEnvironment) GameManager._instance.ChangeGameMode(); });
+        LeanTween.delayedCall(host.introEnvironment.length, () => { if (SampleManager._instance.gameState == GameState.IntroEnvironment) SampleManager._instance.ChangeGameMode(); });
 
     }
 
@@ -249,7 +228,7 @@ public class Host_AskingForMode : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.selectionMode);
-        LeanTween.delayedCall(host.selectionMode.length, () => { if (GameManager._instance.gameState == GameState.IntroTask) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.selectionMode.length, () => { if (SampleManager._instance.gameState == GameState.IntroTask) host.stateManager.ChangeState(10); });
     }
 
 
@@ -279,7 +258,7 @@ public class Host_ExcellentChoice : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.excelentChoice);
-        LeanTween.delayedCall(host.excelentChoice.length, () => { if (GameManager._instance.gameState == GameState.Gather) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.excelentChoice.length, () => { if (SampleManager._instance.gameState == GameState.Gather) host.stateManager.ChangeState(10); });
     }
 
 
@@ -306,7 +285,7 @@ public class Host_StudentFeedback : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.studentFeedbackLine);
-        LeanTween.delayedCall(host.studentFeedbackLine.length, () => { if (GameManager._instance.gameState == GameState.StudentFeedback) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.studentFeedbackLine.length, () => { if (SampleManager._instance.gameState == GameState.StudentFeedback) host.stateManager.ChangeState(10); });
     }
 
 
@@ -330,7 +309,7 @@ public class Host_GeneralFeedbackGood : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.generalFeedbackLine);
-        LeanTween.delayedCall(host.generalFeedbackLine.length, () => { if (GameManager._instance.gameState == GameState.GeneralFeedbackGood) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.generalFeedbackLine.length, () => { if (SampleManager._instance.gameState == GameState.GeneralFeedbackGood) host.stateManager.ChangeState(10); });
     }
 
 
@@ -358,7 +337,7 @@ public class Host_GeneralFeedbackBad : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.needImprovLine);
-        LeanTween.delayedCall(host.needImprovLine.length, () => { if (GameManager._instance.gameState == GameState.GeneralFeedbackBad) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.needImprovLine.length, () => { if (SampleManager._instance.gameState == GameState.GeneralFeedbackBad) host.stateManager.ChangeState(10); });
     }
 
 
@@ -385,7 +364,7 @@ public class Host_End : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.endLine);
-        LeanTween.delayedCall(host.endLine.length, () => { if (GameManager._instance.gameState == GameState.End || GameManager._instance.gameState == GameState.Re) { GameManager._instance.ChangeGameMode(); host.stateManager.ChangeState(10); } });
+        LeanTween.delayedCall(host.endLine.length, () => { if (SampleManager._instance.gameState == GameState.End || SampleManager._instance.gameState == GameState.Re) { SampleManager._instance.ChangeGameMode(); host.stateManager.ChangeState(10); } });
     }
 
 
@@ -413,7 +392,7 @@ public class Host_Toilet : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.toiletLine);
-        LeanTween.delayedCall(host.toiletLine.length, () => { if (GameManager._instance.gameState == GameState.Toilet) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.toiletLine.length, () => { if (SampleManager._instance.gameState == GameState.Toilet) host.stateManager.ChangeState(10); });
     }
 
 
@@ -437,7 +416,7 @@ public class Host_Conflict : Host_BaseState
         base.Enter();
         // run sound clip
         host.PlayAudio(host.conflictLine);
-        LeanTween.delayedCall(host.conflictLine.length, () => { if (GameManager._instance.gameState == GameState.Conflict) host.stateManager.ChangeState(10); });
+        LeanTween.delayedCall(host.conflictLine.length, () => { if (SampleManager._instance.gameState == GameState.Conflict) host.stateManager.ChangeState(10); });
     }
 
 }

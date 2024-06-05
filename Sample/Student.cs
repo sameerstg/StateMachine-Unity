@@ -17,7 +17,6 @@ public class Student : MonoBehaviour
     public StudentType studentType;
     public StateManager stateManager;
     internal Animator animator;
-    internal SightInteractable sightInteractable;
     public bool isPlayingStudent;
     public Image greenImage, unfocusImage, toiletImage;
     public Image brokenAeroplaneUi;
@@ -38,11 +37,10 @@ public class Student : MonoBehaviour
             new Student_GeneralFeedback(this), new Student_Conflict(this), new Student_Toilet(this) ,new Student_EmptyIdle(this)
             ,new Student_BrokenAeroplane(this),new Student_Crafting(this), new Student_LearningIdle(this),new Student_LearningConflict(this),
         new Student_LearningIdleLost(this),new Student_TeacherCrafting(this)});
-        sightInteractable = GetComponent<SightInteractable>();
         animator = GetComponent<Animator>();
-        //toiletYes?.onClick.AddListener(() => { keepInactive = true; gameObject.SetActive(false); GameManager._instance.ChangeGameMode(); });
-        //toiletNo?.onClick.AddListener(() => { stateManager.ChangeState(1); GameManager._instance.ChangeGameMode(); });
-        if (!isPlayingStudent) GetComponent<InteractableUnityEventWrapper>().WhenSelect.AddListener(() => { GameManager._instance.learningGame.selectedStudent = this; });
+        //toiletYes?.onClick.AddListener(() => { keepInactive = true; gameObject.SetActive(false); SampleManager._instance.ChangeGameMode(); });
+        //toiletNo?.onClick.AddListener(() => { stateManager.ChangeState(1); SampleManager._instance.ChangeGameMode(); });
+        if (!isPlayingStudent) GetComponent<InteractableUnityEventWrapper>().WhenSelect.AddListener(() => { Debug.LogError("Selected"); });
     }
     private void OnEnable()
     {
@@ -53,14 +51,14 @@ public class Student : MonoBehaviour
         happy = Resources.Load<Sprite>("Sprites\\happy");
         mid = Resources.Load<Sprite>("Sprites\\mid");
         sad = Resources.Load<Sprite>("Sprites\\sad");
-        GameManager._instance.onStateChange += _ => AssignStateAcc(_);
+        SampleManager._instance.onStateChange += _ => AssignStateAcc(_);
         if (text != null) text.enableWordWrapping = false;
         unfocusSpr = unfocusImage?.sprite;
         greenImage?.gameObject.SetActive(false);
         unfocusImage?.gameObject.SetActive(false);
         toiletImage?.gameObject.SetActive(false);
         brokenAeroplaneUi?.gameObject.SetActive(false);
-        AssignStateAcc(GameManager._instance.gameState);
+        AssignStateAcc(SampleManager._instance.gameState);
     }
     public void AssignStateAcc(GameState state)
     {
@@ -70,11 +68,8 @@ public class Student : MonoBehaviour
         gameObject.SetActive((state == GameState.None || state == GameState.Intro || state == GameState.IntroEnvironment || state == GameState.IntroTask || state == GameState.Gather) && isPlayingStudent ||
             !isPlayingStudent && notPlayingStudentActiveCondition && !keepInactive);
         if (isPlayingStudent) return;
-        sightInteractable.enabled = false;
         if (state == GameState.Story)
         {
-            sightInteractable.enabled = true;
-            sightInteractable.totalTime = sightInteractable.totalSightTime = timesUnfocussed = 0;
             stateManager.ChangeState(0);
         }
         else if (state == GameState.StudentFeedback)
@@ -116,20 +111,16 @@ public class Student : MonoBehaviour
                 stateManager.ChangeState(12);
             else
                 stateManager.ChangeState(8);
-            sightInteractable.enabled = true;
-            sightInteractable.totalTime = sightInteractable.totalSightTime = timesUnfocussed = 0;
         }
         else if (state == GameState.Learning)
         {
-            sightInteractable.enabled = true;
-            sightInteractable.totalTime = sightInteractable.totalSightTime = timesUnfocussed = 0; stateManager.ChangeState(9);
         }
     }
     private void Update()
     {
         stateManager?.currentState?.Update();
     }
-    public void GoToObject(GameObject go,Student student,Vector3 whereToPut,Vector3 position)
+    public void GoToObject(GameObject go, Student student, Vector3 whereToPut, Vector3 position)
     {
         student.transform.LookAt(go.transform, Vector3.up);
         student.transform.LeanMove(go.transform.position, 3).setEase(LeanTweenType.linear).setOnComplete(() =>
@@ -187,7 +178,6 @@ public class Student_BaseState : State
     {
 
         timeToLoseFocus = student.studentType == StudentType.Good ? UnityEngine.Random.Range(15, 20) : UnityEngine.Random.Range(11, 15);
-        student.sightInteractable.ResetData();
         student.unfocusImage.gameObject.SetActive(false);
         student.greenImage.gameObject.SetActive(false);
         student.toiletImage.gameObject.SetActive(false);
@@ -199,15 +189,15 @@ public class Student_BaseState : State
 
     internal void PlayEmptyAnimation()
     {
-        if (GameManager._instance.mode == GameState.Crafting)
+        if (SampleManager._instance.mode == GameState.Crafting)
         {
             student.animator.SetTrigger(StudentAnimation.Idle_Sitting.ToString());
         }
-        else if (GameManager._instance.mode == GameState.Learning)
+        else if (SampleManager._instance.mode == GameState.Learning)
         {
             student.animator.SetTrigger(StudentAnimation.Idle_Standing.ToString());
         }
-        else if (GameManager._instance.mode == GameState.Story)
+        else if (SampleManager._instance.mode == GameState.Story)
         {
             student.animator.SetTrigger(StudentAnimation.Idle_Sitting_Ground.ToString());
         }
@@ -215,18 +205,18 @@ public class Student_BaseState : State
     }
     internal void SetHeight()
     {
-        student.transform.position = new Vector3(student.transform.position.x, GameManager._instance.mode == GameState.Learning ? student.learningYPos : GameManager._instance.mode == GameState.Story ? 0.15f : .5f, student.transform.position.z);
+        student.transform.position = new Vector3(student.transform.position.x, SampleManager._instance.mode == GameState.Learning ? student.learningYPos : SampleManager._instance.mode == GameState.Story ? 0.15f : .5f, student.transform.position.z);
     }
     public override void Update()
     {
     }
     public bool IsFocusLost()
     {
-        return timeToLoseFocus <= student.sightInteractable.timeFromLastSight || GameManager._instance.playerCaretaker.VoiceDetector.timeFromLastTimeTalked > 6;
+        return student.didStart;
     }
     public void LookAtPlayer()
     {
-        student.transform.LookAt(GameManager._instance.playerCaretaker.transform);
+        student.transform.LookAt(SampleManager._instance.transform);
         var rot = student.transform.eulerAngles;
         rot.x = rot.z = 0;
         student.transform.eulerAngles = rot;
@@ -255,7 +245,6 @@ public class Student_SittingIdle : Student_BaseState
             student.stateManager.ChangeState(1);
             return;
         }
-        student.greenImage.fillAmount = 1 - (student.sightInteractable.timeFromLastSight / timeToLoseFocus);
     }
 
 }
@@ -268,7 +257,7 @@ public class Student_Talking : Student_BaseState
     public override void Enter()
     {
         base.Enter();
-        if (GameManager._instance.mode == GameState.Crafting)
+        if (SampleManager._instance.mode == GameState.Crafting)
             student.animator.SetTrigger(StudentAnimation.Talking_Sitting_Chair.ToString());
         student.unfocusImage.sprite = student.unfocusSpr;
         student.unfocusImage.gameObject.SetActive(true);
@@ -277,10 +266,6 @@ public class Student_Talking : Student_BaseState
     public override void Update()
     {
         base.Update();
-        if (student.sightInteractable.sightedTime > .8f)
-        {
-            student.AssignStateAcc(GameManager._instance.gameState);
-        }
     }
 }
 public class Student_Feedback : Student_BaseState
@@ -294,7 +279,6 @@ public class Student_Feedback : Student_BaseState
         //student.text.text = $"Total Sighted Time : {TimeSpan.FromSeconds(student.sightInteractable.totalSightTime).Seconds} sec \nTimes Unfocussed : {student.timesUnfocussed}";
         //student.animator.SetTrigger(StudentAnimation.Idle_Sitting.ToString());
         PlayEmptyAnimation();
-        student.unfocusImage.sprite = student.timesUnfocussed <= 1 && student.sightInteractable.totalSightTime >= 5 ? student.happy : student.timesUnfocussed <= 3 && student.sightInteractable.totalSightTime >= 10 ? student.mid : student.sad;
         student.unfocusImage.gameObject.SetActive(true);
 
     }
@@ -379,10 +363,6 @@ public class Student_Conflict : Student_BaseState
     public override void Update()
     {
         base.Update();
-        if (student.sightInteractable.sightedTime > .8f)
-        {
-            student.stateManager.ChangeState(0);
-        }
     }
     public override void Exit()
     {
@@ -409,8 +389,8 @@ public class Student_Crafting : Student_BaseState
 
         rotation = student.transform.rotation;
         student.animator.SetTrigger(StudentAnimation.Crafting.ToString());
-        var close = GameManager._instance.studentAircraft[0];
-        foreach (var item in GameManager._instance.studentAircraft)
+        var close = SampleManager._instance.studentAircraft[0];
+        foreach (var item in SampleManager._instance.studentAircraft)
         {
             close = Vector3.Distance(student.transform.position, item.transform.position) < Vector3.Distance(student.transform.position, close.transform.position) ? item : close;
         }
@@ -450,7 +430,6 @@ public class Student_LearningIdle : Student_BaseState
             return;
         }
         LookAtPlayer();
-        student.greenImage.fillAmount = 1 - (student.sightInteractable.timeFromLastSight / timeToLoseFocus);
     }
 }
 public class Student_LearningIdleLost : Student_BaseState
@@ -469,10 +448,6 @@ public class Student_LearningIdleLost : Student_BaseState
     public override void Update()
     {
         base.Update();
-        if (student.sightInteractable.sightedTime > .8f)
-        {
-            student.stateManager.ChangeState(9);
-        }
     }
 }
 public class Student_LearningSetting : Student_BaseState
@@ -498,7 +473,7 @@ public class Student_LearningSetting : Student_BaseState
         student.timesLearned++;
         student.animator.SetTrigger(StudentAnimation.Walking.ToString());
         student.GetComponent<CapsuleCollider>().enabled = false;
-        student.GoToObject(go,student,whereToPut,position);
+        student.GoToObject(go, student, whereToPut, position);
     }
     int i = 0;
     public override void Update()
@@ -506,9 +481,9 @@ public class Student_LearningSetting : Student_BaseState
         base.Update();
         SetHeight();
 
-        //GameManager._instance.storyObjects[0].timeGrabbed += Time.deltaTime;
+        //SampleManager._instance.storyObjects[0].timeGrabbed += Time.deltaTime;
     }
-   
+
 
     public override void Exit()
     {
@@ -556,6 +531,5 @@ public class Student_TeacherCrafting : Student_BaseState
             student.stateManager.ChangeState(1);
             return;
         }
-        student.greenImage.fillAmount = 1 - (student.sightInteractable.timeFromLastSight / timeToLoseFocus);
     }
 }
